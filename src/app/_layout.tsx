@@ -1,5 +1,5 @@
 import './global.css'
-import { Stack, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StatusBar as HiddenBar } from 'react-native';
@@ -10,19 +10,20 @@ import { useEffect } from 'react';
 import { infracoesTable } from '../db/schema';
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useUserStore } from '../store/userStore';
 
 
 export default function MainLayout() {
   const { success, error } = useMigrations(db, migrations);
-  // const segment = useSegments()
 
-  // useEffect(() => {
-  //   if (segment[1] == 'search' && segment[2]) {
-  //     HiddenBar.setHidden(true)
-  //   } else {
-  //     HiddenBar.setHidden(false)
-  //   }
-  // }, [segment])
+  const { isLogged } = useUserStore()
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLogged) {
+      router.navigate('/auth/search')
+    }
+  })
 
 
   useEffect(() => {

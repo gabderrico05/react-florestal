@@ -9,11 +9,14 @@ import { SubmitButton } from "../components/SubmitButton";
 import React, { useEffect, useState } from "react";
 import { CheckboxWithLabel } from "../components/CheckboxWithLabel";
 import { useRouter } from "expo-router";
+import { useUserStore } from "../store/userStore";
 
 
 
 
 export default function loginPage() {
+  const { login } = useUserStore()
+
   const [checked, setChecked] = useState(false);
   const router = useRouter();
   const [CPF, setCPF] = useState("");
@@ -21,6 +24,26 @@ export default function loginPage() {
   const [visible, setVisible] = useState(true);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
+  const handelLogin = async () => {
+    if (CPF != "" && password != "") {
+      console.log('start')
+      const rawData = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/signin`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({cpf: CPF, password: password})
+      })
+
+      const data = await rawData.json()
+      if (data?.message === "Login bem-sucedido!") {
+        login("Teste", 1, data.access_token)
+      }
+      console.log('done')
+    } else {
+      console.log('preencha todos os campos')
+    }
+  }
 
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () => setKeyboardOpen(true));
@@ -76,7 +99,7 @@ export default function loginPage() {
 
           <View className="flex items-center w-full mt-14">
                 <SubmitButton title="Login" 
-                  onPress={() => router.push("/auth/search")}
+                  onPress={handelLogin}
                 />
           </View>
 
