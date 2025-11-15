@@ -16,7 +16,7 @@ export default function Index() {
 
   return (
     <SafeAreaView className="flex-1 bg-white items-center">
-        <View className=" items-center gap-3 flex-[1/3]">
+        <View className=" items-center gap-3 w-full h-[1/3]">
           <images.logoparque width={200} height={120} />
           <View className="items-center">
 

@@ -59,7 +59,7 @@ export default function loginPage() {
         className="flex-1 items-center justify-around"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View className={`flex items-center w-full h-20 mt-5 mb-2`} >
+        <View className={`flex items-center w-full h-20 mt-5`} >
           <Title>
             <Text >Seja Bem-Vindo(a)</Text>        
           </Title>
@@ -68,9 +68,15 @@ export default function loginPage() {
           </Title>
         </View>
 
-        <images.logoparque width={keyboardOpen? 200 : 200} height={keyboardOpen? 100 : 160} />
+        {!keyboardOpen ?
+          <images.logoparque width={200} height={160} />
+          :
+          <></>
+        }
+        
+        
 
-        <View className="flex w-full px-6 items-center mx-4 mt-4">
+        <View className="flex w-full px-6 items-center mx-4">
 
           <Configinput textHolder="CPF" value={CPF} onChangeText={setCPF} className="h-16 rounded-2xl -mb-4">
             <images.user width="24px" height="24px"/>
@@ -80,14 +86,16 @@ export default function loginPage() {
           
         </View>
         
-        <View className={`flex items-center w-full mb-12 ${keyboardOpen? 'mt-8' :'mt-10'}`}>
-          <SubmitButton title="Login" 
+        <View className={`flex items-center w-full px-7 mb-8 ${keyboardOpen? 'mt-20' :'mb-24'}`}>
+          <SubmitButton 
+            title="Login"
+            classname="w-full"
             onPress={() => handleLogin()}
           />
         </View>
       </KeyboardAvoidingView>
 
-      <View className={`justify-around flex-row ${keyboardOpen? 'hidden': ''}`}>
+      <View className={`justify-around flex-row ${keyboardOpen&& 'hidden'}`}>
         <View className="items-center justify-center w-24 h-24 bg-transparent">
           <Image
             source={images.ifspLogo}
