@@ -17,8 +17,8 @@ export default function SearchPage() {
         <Title>Buscar Infração</Title>
       </View>
       
-      <TouchableOpacity className="w-full" onPress={() => setShowModal(true)} >
-      <SearchBar editable={false} />
+      <TouchableOpacity className="w-full px-5" onPress={() => setShowModal(true)} >
+      <SearchBar data={[]} filterKey={''} onFiltered={() => ''} editable={false} />
       </TouchableOpacity>
 
       <ScrollView

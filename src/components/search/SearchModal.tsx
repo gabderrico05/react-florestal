@@ -1,8 +1,14 @@
-import { Modal, ModalProps, View, Animated, Dimensions, TextInput } from "react-native";
+import { Modal, ModalProps, View, Animated, Dimensions, TextInput, Keyboard, FlatList, Text } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import ReturnButton from "../ReturnButton";
 import Title from "../Title";
 import SearchBar from "../SearchBar";
+import db from "@/src/db/connection";
+import { ExemploDeCaso, ExemploDeCasoTable } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
+import Dropdown from "./Dropdown";
+import { router } from "expo-router";
+
 
 export type searchModalProps = ModalProps & {
     onClose: () => void;
@@ -13,44 +19,94 @@ const { width } = Dimensions.get('window');
 export default function SearchModal({onClose, ...rest}: searchModalProps) {
     const slideAnim = useRef(new Animated.Value(width)).current;
     const searchBarRef = useRef<TextInput>(null);
-    const [isTransparent, setIsTransparent] = useState(true);
+    const [data, setData] = useState<ExemploDeCaso[]>([]);
+    const [filteredData, setFilteredData] = useState<ExemploDeCaso[]>([]);
+    const [isTransparent, setIsTransparent] = useState<boolean>(true);
 
     useEffect(() => {
-        if (rest.visible) {
-            // Slide in da direita para o centro
-            Animated.timing(slideAnim, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: true,
-            }).start(() => {
-                // Remove transparência e foca o SearchBar após a animação
-                setIsTransparent(false);
-                searchBarRef.current?.focus();
-            });
-        } else {
-            // Slide out do centro para a direita
-            Animated.timing(slideAnim, {
-                toValue: width,
-                duration: 200,
-                useNativeDriver: true,
-            }).start();
-        }
-    }, [rest.visible]);
+        db.select()
+      .from(ExemploDeCasoTable)
+      .then((res) => setData(res as ExemploDeCaso[]));
+
+    }, []);
+
+
+    
+    const openAnimation = () => {
+
+        Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+        }).start(() => {
+            searchBarRef.current?.focus();
+            
+        });
+    };
+        
+    const closeAnimation = () => {
+        Keyboard.dismiss();
+        Animated.timing(slideAnim, {
+            toValue: width,
+            duration: 200,
+            useNativeDriver: true,
+        }).start(() => {
+            
+            onClose();
+        });
+    }
+    
+ 
 
     return(
-        <Modal visible={rest.visible} animationType="none" transparent={isTransparent}>
+        <Modal visible={rest.visible} onShow={openAnimation} animationType="none" transparent onRequestClose={closeAnimation} >
             <Animated.View 
                 className="flex-1 bg-gray-200"
                 style={{
                     transform: [{ translateX: slideAnim }]
                 }}
             >
-                <View className="w-full flex-row mt-6 pl-10 gap-4">
-                    <ReturnButton onPress={onClose}/>
-                    <Title>Buscar Infração</Title>
-                </View>
+                
+                    <FlatList
+                        className="flex-1 px-5"
+                        data={filteredData}
+                        ListHeaderComponent={
+                            <View className="w-full pb-10">
+                            <View className="w-full flex-row mt-4 items-center gap-1">
+                                <ReturnButton onPress={closeAnimation}/>
+                                <Title>Buscar Infração</Title>
+                            </View>
+                
+                            <SearchBar ref={searchBarRef} data={data} filterKey={["nome_resumo", "nome_completo", "tipo_ocorrencia" ]} onFiltered={(e) => setFilteredData(e)} />
 
-                <SearchBar ref={searchBarRef} />
+                            </View>
+                        }
+                        renderItem={ ({item, index}) =>
+                            <Dropdown
+                            key={index}
+                            title={item.nome_resumo}
+                            tag={item.tags}
+                            tipoOcorrencia={item.tipo_ocorrencia}
+                            onPress={() => 
+                                
+                            (router.push({
+                            pathname: "/auth/search/procedimentos",
+                            params: {
+                            id: item.id,
+                            },
+                            }),
+                            closeAnimation())
+                            }
+                            />
+                        }
+                        ListEmptyComponent={
+                            <View className="w-full items-center">
+                             <Text className="font-semibold text-green-500 text-xl">Nenhum resultado encontrado</Text>
+                            </View>}
+                        ItemSeparatorComponent={() => <View className="h-4" />}
+                        ListFooterComponent={() => <View className="h-10" />}
+                    />
+
             </Animated.View>
         </Modal>
     );

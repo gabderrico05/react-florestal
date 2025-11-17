@@ -10,7 +10,7 @@ export default function ReturnButton({ onPress = router.back }: ReturnButtonProp
 
   return (
           <TouchableOpacity
-            className="flex justify-center items-center rounded-br-lg rounded-lg"
+            className="px-3 py-2 flex justify-center items-center rounded-br-lg rounded-lg"
             onPress={() => onPress()}
           >
             <images.leftArrow width={26} height={26} style={{ resizeMode: "contain", opacity: 0.9 }} />
